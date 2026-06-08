@@ -131,7 +131,7 @@ class TestTier1Classifier:
         }
         intent, confidence = classify_tier1(body, turn_index=1, agent_depth=0)
         assert intent == IntentClass.USER_TURN
-        assert confidence == 0.6
+        assert confidence == 0.75
 
 
 class TestPIIDetection:

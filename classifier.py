@@ -85,8 +85,8 @@ def classify_tier1(body: dict, turn_index: int, agent_depth: int) -> Tuple[Inten
     if body.get("stream") is True and turn_index > 0:
         return IntentClass.STREAMING_CONTINUATION, 0.8
     
-    # No confident rule match - default to user_turn with low confidence
-    return IntentClass.USER_TURN, 0.6
+    # No other rule matched — it's a plain user turn with sufficient confidence
+    return IntentClass.USER_TURN, 0.75
 
 
 def classify_tier2(body: dict, turn_index: int, messages: list) -> Tuple[IntentClass, float]:

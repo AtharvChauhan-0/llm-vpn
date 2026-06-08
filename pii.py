@@ -15,7 +15,11 @@ def detect_pii_entities(text: str, threshold: float = 0.6) -> Set[str]:
     try:
         from presidio_analyzer import AnalyzerEngine
         
-        analyzer = AnalyzerEngine()
+        from presidio_analyzer.nlp_engine import NlpEngineProvider
+        config = {"nlp_engine_name": "spacy", "models": [{"lang_code": "en", "model_name": "en_core_web_sm"}]}
+        provider = NlpEngineProvider(nlp_configuration=config)
+        nlp_engine = provider.create_engine()
+        analyzer = AnalyzerEngine(nlp_engine=nlp_engine)
         results = analyzer.analyze(text, language="en")
         
         # Filter by score threshold and return entity types
@@ -24,10 +28,12 @@ def detect_pii_entities(text: str, threshold: float = 0.6) -> Set[str]:
             if result.score >= threshold:
                 entities.add(result.entity_type)
         
+        # Always also run regex fallback and merge — Presidio may miss some
+        # formats that fail internal validation (e.g. non-Luhn CC numbers).
+        entities |= _basic_pii_detection(text)
         return entities
     except Exception as e:
         logger.warning(f"Presidio analysis failed: {e}")
-        # Fallback to basic pattern matching
         return _basic_pii_detection(text)
 
 
@@ -47,6 +53,10 @@ def _basic_pii_detection(text: str) -> Set[str]:
     
     if re.search(r"\b\d{10,}\b", text):
         entities.add("PHONE_NUMBER")
+
+    # Credit card: 16-digit groups separated by spaces or dashes
+    if re.search(r"\b(?:\d{4}[-\s]){3}\d{4}\b", text):
+        entities.add("CREDIT_CARD")
     
     if re.search(r"\b[0-9]{1,5}\s+[A-Z][a-z]+(\s+[A-Z][a-z]+)*", text):
         entities.add("PERSON")

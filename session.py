@@ -16,9 +16,10 @@ class SessionState:
     last_active: int = field(default_factory=lambda: int(time.time()))
     intent_history: list[str] = field(default_factory=list)  # Last 10 intents
     
-    def add_intent(self, intent: IntentClass):
-        """Record intent in history (keep last 10)."""
-        self.intent_history.append(intent.value)
+    def add_intent(self, intent):
+        """Record intent in history (keep last 10). Accepts IntentClass or str."""
+        value = intent.value if isinstance(intent, IntentClass) else str(intent)
+        self.intent_history.append(value)
         if len(self.intent_history) > 10:
             self.intent_history.pop(0)
         self.last_active = int(time.time())
@@ -70,7 +71,7 @@ class SessionManager:
     def get_stats(self) -> dict:
         """Get current session statistics."""
         active = len(self.sessions)
-        total_turns = sum(s.turn_index for s in self.sessions.values())
+        total_turns = sum(s.turn_index + 1 for s in self.sessions.values())
         avg_depth = sum(s.agent_depth for s in self.sessions.values()) / max(1, active)
         
         return {
