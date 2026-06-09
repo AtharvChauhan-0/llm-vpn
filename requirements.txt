@@ -3,7 +3,12 @@ httpx>=0.27.0
 presidio-analyzer>=2.2.0
 cryptography>=42.0.0
 transformers>=4.40.0
-torch>=2.0.0
+# NOTE: plain `torch>=2.0.0` installs the CPU-only build. Tier 2 (the
+# bart-large-mnli zero-shot classifier) runs on CPU at ~300ms/call.
+# For GPU acceleration (~100ms/call on an NVIDIA card), DO NOT install torch
+# from here — instead install the CUDA build separately (see requirements-gpu.txt).
+# torch>=2.7.0 is required for compatibility with transformers 5.x
+torch>=2.7.0
 tiktoken>=0.7.0
 fastapi>=0.111.0
 uvicorn>=0.29.0
