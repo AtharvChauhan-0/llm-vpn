@@ -52,10 +52,13 @@ class MockClientConn:
 
 class MockFlow:
     def __init__(self, host, client_ip, message, method="POST"):
-        body = json.dumps({
-            "model": "gpt-4",
-            "messages": [{"role": "user", "content": message}],
-        }).encode("utf-8")
+        if isinstance(message, dict):
+            # Caller supplied a full request body (e.g. a tool-call shape).
+            payload = message
+        else:
+            payload = {"model": "gpt-4",
+                       "messages": [{"role": "user", "content": message}]}
+        body = json.dumps(payload).encode("utf-8")
         self.request = MockRequest(host, method, body)
         self.client_conn = MockClientConn(client_ip)
         self.metadata = {}  # no timestamp => same client_ip stays one session
@@ -69,6 +72,21 @@ def _ip_for(user):
     if user not in _USER_IPS:
         _USER_IPS[user] = f"10.0.0.{len(_USER_IPS) + 1}"
     return _USER_IPS[user]
+
+
+# A real tool-call-shaped request body (typed text can never produce this).
+TOOL_CALL_BODY = {
+    "model": "gpt-4",
+    "messages": [
+        {"role": "user", "content": "What's the weather in Paris?"},
+        {"role": "assistant", "content": None,
+         "tool_calls": [{"id": "call_1", "type": "function",
+                         "function": {"name": "get_weather",
+                                      "arguments": '{"city":"Paris"}'}}]},
+    ],
+    "tool_calls": [{"id": "call_1", "type": "function",
+                    "function": {"name": "get_weather"}}],
+}
 
 
 def process(proxy, user, message):
@@ -106,7 +124,7 @@ def main():
     user = "alice"
     print("\nLLM-VPN interactive system test.")
     print(f"Inspection dashboard live at http://127.0.0.1:{port}/docs")
-    print("Type a message, or a command (help, user <name>, stats, sessions, quit).\n")
+    print("Type a message, or a command (help, toolcall, user <name>, stats, sessions, quit).\n")
 
     while True:
         try:
@@ -122,7 +140,11 @@ def main():
             print("bye.")
             break
         elif low == "help":
-            print("  <text>=process | user <name>=switch user | stats | sessions | quit")
+            print("  <text>=process | toolcall=send a tool-call request | "
+                  "user <name>=switch user | stats | sessions | quit")
+        elif low == "toolcall":
+            print("  sending a tool-call-shaped request (not plain text)...")
+            process(proxy, user, TOOL_CALL_BODY)
         elif low.startswith("user "):
             user = raw[5:].strip() or user
             print(f"  switched to user '{user}'  (session {_ip_for(user)})")
