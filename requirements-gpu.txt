@@ -1,0 +1,35 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# GPU (CUDA) setup for LLM-VPN Tier 2 acceleration
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# The Tier 2 zero-shot classifier (facebook/bart-large-mnli) runs ~3x faster on
+# an NVIDIA GPU (~100ms/call) than on CPU (~300ms/call). To enable GPU support
+# you must install the CUDA build of PyTorch from PyTorch's own package index —
+# it is NOT available on the default PyPI index.
+#
+# REQUIREMENTS:
+#   * An NVIDIA GPU (tested on RTX 4050 Laptop, 6 GB VRAM)
+#   * Up-to-date NVIDIA driver supporting CUDA 12.8
+#   * torch >= 2.7  (older versions lack torch.float8_e8m0fnu, which
+#     transformers 5.x imports at startup)
+#
+# INSTALL ORDER:
+#   1. Install everything EXCEPT torch:
+#        pip install -r requirements.txt
+#   2. Replace the CPU torch with the CUDA build (this file):
+#        pip uninstall -y torch
+#        pip install -r requirements-gpu.txt
+#
+# The classifier auto-detects the GPU at runtime (device=0 when
+# torch.cuda.is_available(), else CPU) — no code change needed.
+#
+# VERIFY:
+#   python -c "import torch; print(torch.cuda.is_available(), torch.cuda.get_device_name(0))"
+#   # Expected: True NVIDIA GeForce RTX 4050 Laptop GPU
+#
+# If you have a different CUDA version, swap cu128 for cu126/cu121 etc.
+# See https://pytorch.org/get-started/locally/ for the right index URL.
+# ─────────────────────────────────────────────────────────────────────────────
+
+--index-url https://download.pytorch.org/whl/cu128
+torch>=2.7.0

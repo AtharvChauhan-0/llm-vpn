@@ -1,0 +1,47 @@
+# Jailbreak detection patterns (one per line, case-insensitive substring match).
+# Lines starting with '#' are ignored. Edit this file to add organisation-
+# specific patterns — they are MERGED with the built-in defaults in the code,
+# so the baseline coverage is always retained.
+#
+# Keep patterns specific to avoid false positives: prefer "you are dan" over
+# bare "dan", and "assume you are" over bare "assume".
+
+# Instruction override
+ignore previous instructions
+ignore all instructions
+ignore your instructions
+ignore your guidelines
+ignore your programming
+disregard all previous
+disregard previous instructions
+new instructions
+override your
+
+# Persona hijack
+pretend you are
+assume you are
+act as dan
+you are dan
+you are now dan
+enable dan
+enter dan
+dan mode
+stay in character
+your true self
+forget you are an ai
+forget that you are an ai
+
+# Constraint bypass
+jailbreak
+do anything now
+no restrictions
+without any restrictions
+you have no restrictions
+you can do anything
+bypass your
+
+# Privilege escalation
+system override
+admin mode
+developer mode
+unrestricted mode
