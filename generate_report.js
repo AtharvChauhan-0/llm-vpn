@@ -427,6 +427,72 @@ const tocChildren = [
   }),
 ];
 
+// ─── List-of-Tables entry helper ─────────────────────────────────────────────
+function lotEntry(num, title, page) {
+  return new Paragraph({
+    spacing: { before: 80, after: 80, line: 320, lineRule: "auto" },
+    tabStops: [{ type: "right", position: CONTENT_W }],
+    children: [
+      new TextRun({ text: `Table ${num}`, font: TNR, size: 24, bold: true }),
+      new TextRun({ text: `\t${title}`, font: TNR, size: 24 }),
+      new TextRun({ text: `\t${page}`, font: TNR, size: 24 }),
+    ],
+  });
+}
+
+// ─── List-of-Figures entry helper ─────────────────────────────────────────────
+function lofEntry(num, title, page) {
+  return new Paragraph({
+    spacing: { before: 80, after: 80, line: 320, lineRule: "auto" },
+    tabStops: [{ type: "right", position: CONTENT_W }],
+    children: [
+      new TextRun({ text: `Figure ${num}`, font: TNR, size: 24, bold: true }),
+      new TextRun({ text: `\t${title}`, font: TNR, size: 24 }),
+      new TextRun({ text: `\t${page}`, font: TNR, size: 24 }),
+    ],
+  });
+}
+
+// ─── Column header for lot/lof ───────────────────────────────────────────────
+function listHeader(col1, col2, col3) {
+  return new Paragraph({
+    spacing: { before: 200, after: 120, line: 280, lineRule: "auto" },
+    tabStops: [{ type: "right", position: CONTENT_W }],
+    border: { bottom: { style: BorderStyle.SINGLE, size: 4, color: "000000", space: 1 } },
+    children: [
+      new TextRun({ text: col1, font: TNR, size: 24, bold: true }),
+      new TextRun({ text: `\t${col2}`, font: TNR, size: 24, bold: true }),
+      new TextRun({ text: `\t${col3}`, font: TNR, size: 24, bold: true }),
+    ],
+  });
+}
+
+const listOfTablesChildren = [
+  centeredPara([run("LIST OF TABLES", { size: 32, bold: true })],
+    { spaceBefore: 0, spaceAfter: 160, line: 240 }),
+  listHeader("Table No.", "Title", "Page"),
+  lotEntry("3.1", "Tier 1 Rule-Based Classification Rules", "14"),
+  lotEntry("3.2", "Inspection API Endpoints", "19"),
+  lotEntry("4.1", "Project Dependencies", "21"),
+  lotEntry("4.2", "Configuration Parameters", "27"),
+  lotEntry("5.1", "Classification Accuracy on Synthetic Test Dataset", "30"),
+  lotEntry("5.2", "Processing Latency by Stage", "32"),
+  lotEntry("A.1", "Default Jailbreak Pattern List", "41"),
+];
+
+const listOfFiguresChildren = [
+  centeredPara([run("LIST OF FIGURES", { size: 32, bold: true })],
+    { spaceBefore: 0, spaceAfter: 160, line: 240 }),
+  listHeader("Figure No.", "Title", "Page"),
+  lofEntry("3.1", "High-Level System Architecture of LLM-VPN", "12"),
+  lofEntry("3.2", "Two-Tier Classification Pipeline", "15"),
+  lofEntry("3.3", "Semantic Envelope Structure", "17"),
+  lofEntry("3.4", "Session State Lifecycle", "18"),
+  lofEntry("3.5", "Routing Hint Decision Tree", "19"),
+  lofEntry("4.1", "Module Dependency Diagram", "22"),
+  lofEntry("5.1", "Latency Distribution: Tier 1 vs Tier 2 Paths", "33"),
+];
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // CHAPTER 1 – INTRODUCTION
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -1805,6 +1871,10 @@ const doc = new Document({
         ...abstractChildren,
         new Paragraph({ children: [new PageBreak()] }),
         ...tocChildren,
+        new Paragraph({ children: [new PageBreak()] }),
+        ...listOfTablesChildren,
+        new Paragraph({ children: [new PageBreak()] }),
+        ...listOfFiguresChildren,
       ],
     },
     // Section 2: Main body (Arabic numerals from 1)
